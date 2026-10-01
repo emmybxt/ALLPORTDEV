@@ -1,0 +1,8 @@
+services:
+  - name: api
+    command: 'i=0; while :; do i=$((i+1)); echo "GET /health 200 request=$i"; sleep 1; done'
+  - name: web
+    command: 'while :; do echo "frontend ready on localhost:5173"; sleep 2; done'
+  - name: worker
+    command: 'while :; do echo "processing job"; echo "example warning" >&2; sleep 3; done'
+    autostart: false
