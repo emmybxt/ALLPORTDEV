@@ -12,7 +12,7 @@ func (m Model) handleCopyKey(key tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "c", "esc":
 		m.copying = false
 		m.refresh()
-		return m, tea.EnableMouseCellMotion
+		return m, m.mouseCommand()
 	case "q":
 		return m, tea.Quit
 	case "up", "down", "k", "j", "pgup", "pgdown", "end", "G":

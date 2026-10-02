@@ -12,14 +12,21 @@ func (m Model) handleKey(key tea.KeyMsg) (tea.Model, tea.Cmd) {
 	if m.searching {
 		return m.handleSearch(key), nil
 	}
-	switch key.String() {
+	return m.handleDashboardKey(key.String())
+}
+
+func (m Model) handleDashboardKey(key string) (tea.Model, tea.Cmd) {
+	switch key {
 	case "q":
 		return m, tea.Quit
 	case "c":
 		m.copying = true
 		return m, tea.DisableMouse
+	case "m":
+		m.mouseEnabled = !m.mouseEnabled
+		return m, m.mouseCommand()
 	case "s", "x", "r":
-		return m.action(key.String())
+		return m.action(key)
 	case "shift+tab":
 		m.selectService(-1)
 	case "tab":
@@ -28,7 +35,7 @@ func (m Model) handleKey(key tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.selected, m.offset, m.cutoff = -1, 0, 0
 		m.refresh()
 	default:
-		m.handleLogKey(key.String())
+		m.handleLogKey(key)
 	}
 	return m, nil
 }

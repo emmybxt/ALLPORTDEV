@@ -3,7 +3,7 @@ package tui
 import tea "github.com/charmbracelet/bubbletea"
 
 func (m *Model) handleMouse(msg tea.MouseMsg) {
-	if m.copying || msg.Action != tea.MouseActionPress {
+	if !m.mouseEnabled || m.copying || msg.Action != tea.MouseActionPress {
 		return
 	}
 	switch msg.Button {
@@ -14,6 +14,13 @@ func (m *Model) handleMouse(msg tea.MouseMsg) {
 	case tea.MouseButtonLeft:
 		m.selectClickedService(msg.X, msg.Y)
 	}
+}
+
+func (m Model) mouseCommand() tea.Cmd {
+	if m.mouseEnabled {
+		return tea.EnableMouseCellMotion
+	}
+	return tea.DisableMouse
 }
 
 func (m *Model) selectClickedService(x, y int) {

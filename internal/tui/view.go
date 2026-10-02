@@ -36,7 +36,7 @@ func (m Model) View() string {
 	for i := 0; i < height; i++ {
 		lines = append(lines, fit(left[i], leftWidth)+muted.Render(" │ ")+fit(right[i], rightWidth))
 	}
-	lines = append(lines, "", fit(m.footer(), m.width), fit("  c select/copy · Tab service · s start · x stop · r restart", m.width), fit("  ↑/↓/wheel scroll · PgUp/PgDn page · End live · / search · q quit", m.width))
+	lines = append(lines, "", fit(m.footer(), m.width), fit("  Tab service · s start · x stop · r restart · m mouse mode", m.width), fit("  ↑/↓ scroll · PgUp/PgDn page · c pause/copy · / search · q quit", m.width))
 	for i, line := range lines {
 		lines[i] = ansi.Truncate(line, m.width, "…")
 	}
@@ -109,5 +109,8 @@ func (m Model) footer() string {
 	if m.query != "" {
 		return "  Filter: " + m.query
 	}
-	return muted.Render("  Commands apply to the selected service, or all services when All is selected.")
+	if m.mouseEnabled {
+		return muted.Render("  Mouse: dashboard controls · m returns to native text selection")
+	}
+	return muted.Render("  Drag to select text, then copy normally · m enables service clicks/wheel")
 }

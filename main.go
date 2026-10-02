@@ -51,7 +51,7 @@ func run(args []string) error {
 	}
 	manager := runner.New(cfg.Services)
 	defer manager.Shutdown()
-	program := tea.NewProgram(tui.New(manager), tea.WithAltScreen(), tea.WithMouseCellMotion(), tea.WithoutSignalHandler())
+	program := tea.NewProgram(tui.New(manager), tea.WithAltScreen(), tea.WithoutSignalHandler())
 	quitSignals := make(chan os.Signal, 1)
 	signal.Notify(quitSignals, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
 	defer signal.Stop(quitSignals)

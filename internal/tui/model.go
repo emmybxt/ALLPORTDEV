@@ -21,6 +21,7 @@ type Model struct {
 	query         string
 	searching     bool
 	copying       bool
+	mouseEnabled  bool
 	offset        int
 	cutoff        uint64
 	busy          bool

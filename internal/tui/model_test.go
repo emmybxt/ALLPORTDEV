@@ -14,6 +14,8 @@ import (
 
 func TestCopyModeReleasesMouseAndFreezesDisplay(t *testing.T) {
 	m := logHistoryModel()
+	updated, _ := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("m")})
+	m = updated.(Model)
 	updated, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("c")})
 	if cmd == nil || reflect.TypeOf(cmd()) != reflect.TypeOf(tea.DisableMouse()) {
 		t.Fatal("copy mode must release mouse capture so terminal text selection works")
@@ -45,6 +47,27 @@ func TestCopyModeReleasesMouseAndFreezesDisplay(t *testing.T) {
 	}
 	if strings.Contains(updated.View(), "COPY MODE") {
 		t.Fatal("escape did not restore dashboard")
+	}
+}
+
+func TestMouseControlsAreOptIn(t *testing.T) {
+	m := logHistoryModel()
+	updated, _ := m.Update(tea.MouseMsg{Action: tea.MouseActionPress, Button: tea.MouseButtonWheelUp})
+	if updated.(Model).offset != 0 {
+		t.Fatal("default dashboard must leave the mouse to native terminal selection")
+	}
+	updated, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("m")})
+	if cmd == nil || reflect.TypeOf(cmd()) != reflect.TypeOf(tea.EnableMouseCellMotion()) {
+		t.Fatal("m must explicitly enable dashboard mouse controls")
+	}
+	updated, cmd = updated.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("m")})
+	if cmd == nil || reflect.TypeOf(cmd()) != reflect.TypeOf(tea.DisableMouse()) {
+		t.Fatal("m must restore native text selection")
+	}
+	updated, _ = updated.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("c")})
+	_, cmd = updated.Update(tea.KeyMsg{Type: tea.KeyEsc})
+	if cmd == nil || reflect.TypeOf(cmd()) != reflect.TypeOf(tea.DisableMouse()) {
+		t.Fatal("leaving copy mode must preserve native selection")
 	}
 }
 
@@ -81,6 +104,8 @@ func logHistoryModel() Model {
 
 func TestWheelScrollAndClickSelection(t *testing.T) {
 	m := logHistoryModel()
+	withMouse, _ := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("m")})
+	m = withMouse.(Model)
 	updated, _ := m.Update(tea.MouseMsg{Action: tea.MouseActionPress, Button: tea.MouseButtonWheelUp, X: 60, Y: 10})
 	m = updated.(Model)
 	if m.selected != 0 || m.offset != 3 {
