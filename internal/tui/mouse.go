@@ -3,7 +3,7 @@ package tui
 import tea "github.com/charmbracelet/bubbletea"
 
 func (m *Model) handleMouse(msg tea.MouseMsg) {
-	if msg.Action != tea.MouseActionPress {
+	if m.copying || msg.Action != tea.MouseActionPress {
 		return
 	}
 	switch msg.Button {

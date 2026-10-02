@@ -24,6 +24,9 @@ func (m Model) View() string {
 	if m.width < 60 || m.height < 14 {
 		return "AllPortDev — enlarge terminal to 60×14 or more. q / Ctrl+C quits.\n"
 	}
+	if m.copying {
+		return m.copyView()
+	}
 	leftWidth := m.sidebarWidth()
 	rightWidth := m.width - leftWidth - 3
 	height := m.logHeight()
@@ -33,7 +36,7 @@ func (m Model) View() string {
 	for i := 0; i < height; i++ {
 		lines = append(lines, fit(left[i], leftWidth)+muted.Render(" │ ")+fit(right[i], rightWidth))
 	}
-	lines = append(lines, "", fit(m.footer(), m.width), fit("  Tab/Shift+Tab select · a all · s start · x stop · r restart", m.width), fit("  ↑/↓/wheel scroll · PgUp/PgDn page · End live · / search · q quit", m.width))
+	lines = append(lines, "", fit(m.footer(), m.width), fit("  c select/copy · Tab service · s start · x stop · r restart", m.width), fit("  ↑/↓/wheel scroll · PgUp/PgDn page · End live · / search · q quit", m.width))
 	for i, line := range lines {
 		lines[i] = ansi.Truncate(line, m.width, "…")
 	}

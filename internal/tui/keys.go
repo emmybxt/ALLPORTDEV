@@ -3,6 +3,9 @@ package tui
 import tea "github.com/charmbracelet/bubbletea"
 
 func (m Model) handleKey(key tea.KeyMsg) (tea.Model, tea.Cmd) {
+	if m.copying {
+		return m.handleCopyKey(key)
+	}
 	if key.String() == "ctrl+c" {
 		return m, tea.Quit
 	}
@@ -12,6 +15,9 @@ func (m Model) handleKey(key tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch key.String() {
 	case "q":
 		return m, tea.Quit
+	case "c":
+		m.copying = true
+		return m, tea.DisableMouse
 	case "s", "x", "r":
 		return m.action(key.String())
 	case "shift+tab":

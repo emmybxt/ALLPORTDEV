@@ -69,6 +69,7 @@ Place flags before service names. Services launch without waiting for one anothe
 | r | Restart the selection |
 | / | Search log text, case insensitive; Enter applies |
 | Esc | Clear the search |
+| c | Enter copy mode: drag to select logs with your mouse, then use your terminal's Copy command |
 | ↑ / ↓, k / j, mouse wheel | Scroll the selected service's log history |
 | PgUp / PgDn | Scroll log history one page at a time |
 | End / G | Return to live logs |
@@ -77,6 +78,8 @@ Place flags before service names. Services launch without waiting for one anothe
 Start, stop, and restart apply to **all services when All is selected**. Status labels distinguish running, stopping, stopped, exited, and failed commands. A running process is not a readiness/health check.
 
 Scrolling keeps the current service selected and pauses live following so new output does not move the lines you are reading. Press End (or scroll back to the bottom) to resume live logs. Mouse controls require a terminal with mouse reporting support.
+
+To highlight and copy logs, press **c**. Copy mode releases mouse capture, hides the service sidebar, and freezes the displayed history while services keep running. Drag your mouse across the text and use your terminal's Copy command (`Cmd+C` on macOS, often `Ctrl+Shift+C` on Linux). Use arrow keys or PgUp/PgDn to browse the frozen history before selecting. Press **Esc** or **c** to restore the dashboard and mouse scrolling. Plain Ctrl+C does not quit from copy mode, so an accidental copy shortcut won't stop your services; `q` still quits. Copied text is the visible terminal text; lines wider than the terminal remain truncated.
 
 Every log has a timestamp, service name, and `out`, `err`, or `sys` label. The runner keeps the newest 2,000 lines **per service** in memory, splits output at 16 KiB per line, and removes terminal escape sequences. Long lines are truncated to the terminal width in the dashboard. Logs are emitted on a newline/carriage return or when a process exits; programs may need their own unbuffered-output option. Logs are not persisted. Scrolling pauses the view; older entries still expire when the buffer fills.
 

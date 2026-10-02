@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -10,6 +11,42 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/x/ansi"
 )
+
+func TestCopyModeReleasesMouseAndFreezesDisplay(t *testing.T) {
+	m := logHistoryModel()
+	updated, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("c")})
+	if cmd == nil || reflect.TypeOf(cmd()) != reflect.TypeOf(tea.DisableMouse()) {
+		t.Fatal("copy mode must release mouse capture so terminal text selection works")
+	}
+	m = updated.(Model)
+	before := m.View()
+	_, copyShortcut := m.Update(tea.KeyMsg{Type: tea.KeyCtrlC})
+	if copyShortcut != nil {
+		t.Fatal("Ctrl+C must not stop services while selecting text")
+	}
+	if strings.Contains(before, " │ ") || !strings.Contains(before, "COPY MODE") {
+		t.Fatal("copy mode should show logs without the service sidebar")
+	}
+	for _, msg := range []tea.Msg{
+		tickMsg{},
+		tea.MouseMsg{Action: tea.MouseActionPress, Button: tea.MouseButtonWheelUp},
+		tea.MouseMsg{Action: tea.MouseActionPress, Button: tea.MouseButtonLeft, X: 5, Y: 6},
+		actionMsg{},
+	} {
+		updated, _ = m.Update(msg)
+		m = updated.(Model)
+		if m.View() != before {
+			t.Fatal("background update or mouse input changed text during selection")
+		}
+	}
+	updated, cmd = m.Update(tea.KeyMsg{Type: tea.KeyEsc})
+	if cmd == nil || reflect.TypeOf(cmd()) != reflect.TypeOf(tea.EnableMouseCellMotion()) {
+		t.Fatal("leaving copy mode must restore mouse scrolling")
+	}
+	if strings.Contains(updated.View(), "COPY MODE") {
+		t.Fatal("escape did not restore dashboard")
+	}
+}
 
 func TestArrowScrollingKeepsSelectedService(t *testing.T) {
 	m := logHistoryModel()

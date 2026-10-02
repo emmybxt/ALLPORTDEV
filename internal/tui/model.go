@@ -20,6 +20,7 @@ type Model struct {
 	width, height int
 	query         string
 	searching     bool
+	copying       bool
 	offset        int
 	cutoff        uint64
 	busy          bool
@@ -60,7 +61,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m *Model) refresh() { m.services, m.logs = m.manager.Snapshot(m.selected) }
+func (m *Model) refresh() {
+	if m.copying {
+		return
+	}
+	m.services, m.logs = m.manager.Snapshot(m.selected)
+}
 
 func (m Model) action(key string) (tea.Model, tea.Cmd) {
 	if m.busy {
